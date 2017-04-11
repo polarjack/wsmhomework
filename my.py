@@ -5,6 +5,7 @@ import math
 import os
 import nltk
 import sys
+import operator
 from nltk import stem
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem.porter import *
@@ -13,6 +14,18 @@ from nltk.corpus import stopwords
 path = './documents'
 alltexts = []
 i = 0
+
+def querytogo(query):
+    
+    query = query.lower()
+
+    at = RegexpTokenizer(r'\w+')
+    print(at)
+    query = at.tokenize(query)
+    aq = PorterStemmer()
+    aqueryf = [aq.stem(q) for q in query]
+    aquerys = [q for q in aqueryf if q not in stopwords.words('english')]
+    return aquerys
 
 class build:
     def __init__(self):
@@ -54,13 +67,93 @@ class build:
             self.documentstfidf.append([doc[0], doc_dict_tfidf])
         
         #print(self.all_dict_idf)
-        print(self.documentstfidf)
+        #print(self.documentstfidf)
+    def tfcos(self, query):
+        ranking = {}
+        for doc in self.documents:
+            upper = 0
+            dl = 0.0
+            ql = len(query)
+            for q in query:
+                if q in doc[1]:
+                    upper += doc[1][q]
+            for d in doc[1]:
+                dl += math.pow(doc[1][d], 2)
+            tfcosdoc = upper/(math.sqrt(dl)* math.sqrt(ql))
+            ranking[doc[0]] = tfcosdoc
+        rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
+        rankingsort.reverse()
+        self.showfirstfive(rankingsort)      
+   
+  
+    def tfjaccard(self, query):
+        ranking = {}
+        for doc in self.documents:
+            print(doc)
+            upper = 0
+            dl = 0.0
+            for q in query:
+                if q in doc[1]:
+                    upper += doc[1][q]
+            for d in doc[1]:
+                dl += doc[1][d]
+            ranking[doc[0]] = upper/dl
+        rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
+        rankingsort.reverse()
+        self.showfirstfive(rankingsort)
+
+
+    def tfidfcos(self, query):
+        ranking = {}
+        for doc in self.documentstfidf:
+            #get the upper place
+            upper = 0
+            dl = 0.0
+            ql = len(query)
+            for q in query:
+                if q in doc[1]:
+                    upper += doc[1][q] 
+            
+            for d in doc[1]:
+                dl += math.pow(doc[1][d], 2)
+           
+            tfidfdoc = upper/(math.sqrt(dl)*math.sqrt(ql))
+            ranking[doc[0]] = tfidfdoc
         
+        rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
+        rankingsort.reverse()
+        self.showfirstfive(rankingsort)
+    def tfidfjaccard(self, query):
+        ranking = {}
+        for doc in self.documentstfidf:
+            upper = 0
+            dl = 0.0
+            for q in query:
+                if q in doc[1]:
+                    upper += doc[1][q]
+            for d in doc[1]:
+                dl += doc[1][d]
+            ranking[doc[0]] = upper/dl
+        
+        rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
+        rankingsort.reverse()
+        self.showfirstfive(rankingsort)
+
+    def showfirstfive(self, rankingsort):
+        i = 0
+        print("DocId      Score")
+        for item, v in rankingsort:
+            print(item,"   ",round(v, 8))
+            i += 1
+            if i+1 == 11:
+                break
+        print('\n\n')
+
 dictionary = build();
 
 for filenames in os.listdir(path):
     #print(filenames)
-    if i == 4:
+    if i == 2047:
         break
     i = i+1
     f = open(path+'/'+filenames,'r+')
@@ -80,17 +173,23 @@ for filenames in os.listdir(path):
     dictionary.addDocument(todic, aftertokennostop)
     
 #caaulate idf of each words
-dictionary.calculateidf();
+print("building~~~~ please wait")
+dictionary.calculateidf()
+print("DONE")
 
-query = input('input query:')
+aquery = input('input query:')
+back = querytogo(aquery)
 
-query = query.lower()
+print('Term Frequency (TF) Weighting + Cosine Similarity: ')
+#dictionary.tfcos(back)
 
+print('Term Frequency (TF) Weighting + Jaccard Similarity: ')
+dictionary.tfjaccard(back)
 
-at = RegexpTokenizer(r'\w+')
-query = at.tokenize(query)
-aq = PorterStemmer()
-aqueryf = [aq.stem(q) for q in query]
-aquerys = [q for q in aqueryf if q not in stopwords.words('english')]
+print('TF-IDF Weighting + Cosine Similarity: ')
+#dictionary.tfidfcos(back)
 
-print(aquerys)
+print('TF-IDF Weighting + Jaccard Similarity: ')
+dictionary.tfidfjaccard(back)
+
+#dictionary.tfidfcos(aquerys)

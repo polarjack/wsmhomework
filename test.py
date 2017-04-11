@@ -1,12 +1,29 @@
 import nltk
-from nltk.tokenize import TweetTokenizer
+import math
+import operator
+test = []
 
-tknzr = TweenTokenizer()
+test.append(["c", 100])
+test.append(["m", 38134])
+test.append(["a", 1])
+test.append(["x", 1883])
+test.append(["y", 993])
 
-s0  = "This is a cooool #dummysmiley: :-) :-P <3 and some arrows < > -> <--"
-
-print(s0)
-#print(tknzr.tokeniza(s0))
 
 
+
+second = {}
+second["a"] = 12321
+
+second["b"] = 12
+second["y"] = 78
+second["t"] = 911
+second["m"] = 200
+second["p"] = 166
+sorts = sorted(second.items(), key=operator.itemgetter(1))
+sorts.reverse()
+print(sorts)
+
+for s,v in sorts:
+    print(s, v)
 
