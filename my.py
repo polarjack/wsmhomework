@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from Parser import Parser
 import math
 import os
 import nltk
@@ -26,6 +25,13 @@ def querytogo(query):
     aqueryf = [aq.stem(q) for q in query]
     aquerys = [q for q in aqueryf if q not in stopwords.words('english')]
     return aquerys
+
+
+def returnquery(index, doct):
+    for d in doct:
+        if d[0] == index:
+            return d[1]
+
 
 class build:
     def __init__(self):
@@ -89,15 +95,22 @@ class build:
     def tfjaccard(self, query):
         ranking = {}
         for doc in self.documents:
-            print(doc)
+            #print(doc)
             upper = 0
             dl = 0.0
             for q in query:
                 if q in doc[1]:
-                    upper += doc[1][q]
+                    if doc[1][q] <= 1:
+                        upper += doc[1][q]
+                        dl -= doc[1][q]
+                        dl += 1
+                    else:
+                        upper += 1
+                        
             for d in doc[1]:
                 dl += doc[1][d]
             ranking[doc[0]] = upper/dl
+            #print(upper, dl)
         rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
         rankingsort.reverse()
         self.showfirstfive(rankingsort)
@@ -130,7 +143,12 @@ class build:
             dl = 0.0
             for q in query:
                 if q in doc[1]:
-                    upper += doc[1][q]
+                    if doc[1][q] <= 1:
+                        upper += doc[1][q]
+                        dl -= doc[1][q]
+                        dl += 1
+                    else:
+                        upper += 1
             for d in doc[1]:
                 dl += doc[1][d]
             ranking[doc[0]] = upper/dl
@@ -139,23 +157,82 @@ class build:
         rankingsort.reverse()
         self.showfirstfive(rankingsort)
 
+    def feedback(self, query):
+        ranking = {}
+        for doc in self.documentstfidf:
+            upper = 0
+            dl = 0.0
+            for q in query:
+                if q in doc[1]:
+                    if doc[1][q] <= 1:
+                        upper += doc[1][q]
+                        dl -= doc[1][q]
+                        dl += 1
+                    else:
+                        upper += 1
+            for d in doc[1]:
+                dl += doc[1][d]
+            ranking[doc[0]] = upper/dl
+        
+        rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
+        rankingsort.reverse()
+        #self.showfirstfive(rankingsort)
+        
+        feedin = rankingsort[0][0] 
+        feedinq = returnquery(feedin,self.documentstfidf)
+        
+        for fdq in feedinq:
+            feedinq[fdq] *= 0.5
+        for q in query:
+            if q in fdq:
+                feedinq[fdq] += 1
+                del query[query.index(q)]
+        
+        if len(query) != 0:
+            for q in query:
+                feedinq[q] = 1
+        #print("second result\n\n")
+        ranking2 = {} 
+        for doc in self.documentstfidf:
+            upper = 0
+            dl = 0.0
+            for q in feedinq:
+                if q in doc[1]:
+                    if doc[1][q] <= 1:
+                        upper += doc[1][q]
+                        dl -= doc[1][q]
+                        dl += 1
+                    else:
+                        upper += 1
+            for d in doc[1]:
+                dl += doc[1][d]
+            ranking2[doc[0]] = upper/dl
+        
+        rankingsort2 = sorted(ranking2.items(), key=operator.itemgetter(1))
+        rankingsort2.reverse()
+        self.showfirstfive(rankingsort2)
+        
+
     def showfirstfive(self, rankingsort):
         i = 0
+        print('\n\n')
         print("DocId      Score")
         for item, v in rankingsort:
             print(item,"   ",round(v, 8))
             i += 1
             if i+1 == 11:
                 break
-        print('\n\n')
 
 dictionary = build();
 
+newstring = ["187855.product", "207587.product", "196603.product", "112553.product", "130909.product"]
+
 for filenames in os.listdir(path):
+#for filenames in newstring:
     #print(filenames)
-    if i == 2047:
-        break
-    i = i+1
+    #if i == 11:
+    #    break
+    #i = i+1
     f = open(path+'/'+filenames,'r+')
     todic = filenames[:-8]
     text = f.read()
@@ -181,15 +258,25 @@ aquery = input('input query:')
 back = querytogo(aquery)
 
 print('Term Frequency (TF) Weighting + Cosine Similarity: ')
-#dictionary.tfcos(back)
+dictionary.tfcos(back)
 
 print('Term Frequency (TF) Weighting + Jaccard Similarity: ')
 dictionary.tfjaccard(back)
 
 print('TF-IDF Weighting + Cosine Similarity: ')
-#dictionary.tfidfcos(back)
+dictionary.tfidfcos(back)
 
 print('TF-IDF Weighting + Jaccard Similarity: ')
 dictionary.tfidfjaccard(back)
 
-#dictionary.tfidfcos(aquerys)
+print('Feedback Queries + TF-IDF Weighting + Jaccard Smilarity; ')
+dictionary.feedback(back)
+
+
+
+
+
+
+
+
+
