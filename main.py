@@ -210,7 +210,10 @@ class build:
             if i+1 == 6: #change the nubmer if you want to see more ranking results
                 break
         print('\n')
+
 dictionary = build();
+
+print("Reading Data.... (About 120 seconds sorry= =||) there will be done message after done")
 
 for filenames in os.listdir(path):
     f = open(path+'/'+filenames,'r+')
@@ -228,7 +231,7 @@ for filenames in os.listdir(path):
     dictionary.addDocument(todic, aftertokennostop)
     
 #caaulate idf of each words
-print("Building..... Please wait (About 120 seconds sorry= =||) there will be done message after done")
+print("Building..... ")
 dictionary.calculateidf()
 print("Building DONE!!")
 
