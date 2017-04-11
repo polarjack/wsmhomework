@@ -19,19 +19,16 @@ def querytogo(query):
     query = query.lower()
 
     at = RegexpTokenizer(r'\w+')
-    print(at)
     query = at.tokenize(query)
     aq = PorterStemmer()
     aqueryf = [aq.stem(q) for q in query]
     aquerys = [q for q in aqueryf if q not in stopwords.words('english')]
     return aquerys
 
-
 def returnquery(index, doct):
     for d in doct:
         if d[0] == index:
             return d[1]
-
 
 class build:
     def __init__(self):
@@ -47,8 +44,6 @@ class build:
             self.all_dict[w] = self.all_dict.get(w, 0.0) + 1.0
         
         self.documents.append([doc_name, doc_dict])
-    def getdocuments(self):
-        print(len(self.documents))
     def calculateidf(self):
         length = len(self.documents)
         for eachword in self.all_dict:
