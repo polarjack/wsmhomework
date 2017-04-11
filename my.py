@@ -203,7 +203,7 @@ class build:
 
     def showfirstfive(self, rankingsort):
         i = 0
-        print('\n\n')
+        print('\n')
         print("DocId      Score")
         for item, v in rankingsort:
             print(item,"   ",round(v, 8))
@@ -229,9 +229,9 @@ for filenames in os.listdir(path):
     dictionary.addDocument(todic, aftertokennostop)
     
 #caaulate idf of each words
-print("building~~~~ please wait")
+print("Building..... Please wait (About 120 seconds sorry= =||) there will be done message after done")
 dictionary.calculateidf()
-print("DONE")
+print("Building DONE!!")
 
 aquery = input('input query:')
 back = querytogo(aquery)
