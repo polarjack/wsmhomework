@@ -203,14 +203,13 @@ class build:
 
     def showfirstfive(self, rankingsort):
         i = 0
-        print('\n')
         print("DocId      Score")
         for item, v in rankingsort:
             print(item,"   ",round(v, 8))
             i += 1
             if i+1 == 6: #change the nubmer if you want to see more ranking results
                 break
-
+        print('\n')
 dictionary = build();
 
 for filenames in os.listdir(path):
