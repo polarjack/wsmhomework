@@ -48,16 +48,12 @@ class build:
         
         self.documents.append([doc_name, doc_dict])
     def getdocuments(self):
-        #print(self.documents)
-        #print(self.all_dict)
         print(len(self.documents))
     def calculateidf(self):
         length = len(self.documents)
         for eachword in self.all_dict:
             countofword = self.all_dict[eachword]
-            #print(eachword)
             thiswordcount = 0
-            #spec = lambda L: L[1:] == [eachword]
             for doc in self.documents:
                 for a in doc[1]:
                     if a == eachword:
@@ -72,8 +68,6 @@ class build:
                 doc_dict_tfidf[a] = doc[1][a]*self.all_dict_idf[a]
             self.documentstfidf.append([doc[0], doc_dict_tfidf])
         
-        #print(self.all_dict_idf)
-        #print(self.documentstfidf)
     def tfcos(self, query):
         ranking = {}
         for doc in self.documents:
@@ -90,12 +84,10 @@ class build:
         rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
         rankingsort.reverse()
         self.showfirstfive(rankingsort)      
-   
   
     def tfjaccard(self, query):
         ranking = {}
         for doc in self.documents:
-            #print(doc)
             upper = 0
             dl = 0.0
             for q in query:
@@ -110,7 +102,6 @@ class build:
             for d in doc[1]:
                 dl += doc[1][d]
             ranking[doc[0]] = upper/dl
-            #print(upper, dl)
         rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
         rankingsort.reverse()
         self.showfirstfive(rankingsort)
@@ -119,7 +110,6 @@ class build:
     def tfidfcos(self, query):
         ranking = {}
         for doc in self.documentstfidf:
-            #get the upper place
             upper = 0
             dl = 0.0
             ql = len(query)
@@ -176,7 +166,6 @@ class build:
         
         rankingsort = sorted(ranking.items(), key=operator.itemgetter(1))
         rankingsort.reverse()
-        #self.showfirstfive(rankingsort)
         
         feedin = rankingsort[0][0] 
         feedinq = returnquery(feedin,self.documentstfidf)
@@ -191,7 +180,6 @@ class build:
         if len(query) != 0:
             for q in query:
                 feedinq[q] = 1
-        #print("second result\n\n")
         ranking2 = {} 
         for doc in self.documentstfidf:
             upper = 0
@@ -220,19 +208,12 @@ class build:
         for item, v in rankingsort:
             print(item,"   ",round(v, 8))
             i += 1
-            if i+1 == 11:
+            if i+1 == 6: #change the nubmer if you want to see more ranking results
                 break
 
 dictionary = build();
 
-newstring = ["187855.product", "207587.product", "196603.product", "112553.product", "130909.product"]
-
 for filenames in os.listdir(path):
-#for filenames in newstring:
-    #print(filenames)
-    #if i == 11:
-    #    break
-    #i = i+1
     f = open(path+'/'+filenames,'r+')
     todic = filenames[:-8]
     text = f.read()
@@ -244,9 +225,7 @@ for filenames in os.listdir(path):
     steemer = PorterStemmer()
     afterstem = [steemer.stem(aftertokeneach) for aftertokeneach in aftertoken]
     
-    #print(afterstem)
     aftertokennostop = [word for word in afterstem if word not in stopwords.words('english')]
-    #print(aftertokennostop) 
     dictionary.addDocument(todic, aftertokennostop)
     
 #caaulate idf of each words
@@ -271,12 +250,4 @@ dictionary.tfidfjaccard(back)
 
 print('Feedback Queries + TF-IDF Weighting + Jaccard Smilarity; ')
 dictionary.feedback(back)
-
-
-
-
-
-
-
-
 
